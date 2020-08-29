@@ -56,25 +56,43 @@ public class viewmodel extends ViewModel {
     //38-Rparoah(up)
 
 
-    Integer touchx, touchy, turn;
+    Integer touchcolumn, touchrow, turn;
     MutableLiveData<Boolean> selected = new MutableLiveData<>();
+    boolean clockwise = false, anticlockwise = false;
 
 
-    public Integer getTouchx() {
-        return touchx;
+    public boolean isClockwise() {
+        return clockwise;
     }
 
-    public void setTouchx(Integer touchx) {
-        this.touchx = touchx;
+    public void setClockwise(boolean clockwise) {
+        this.clockwise = clockwise;
     }
 
-    public Integer getTouchy() {
-        return touchy;
+    public boolean isAnticlockwise() {
+        return anticlockwise;
     }
 
-    public void setTouchy(Integer touchy) {
-        this.touchy = touchy;
+    public void setAnticlockwise(boolean anticlockwise) {
+        this.anticlockwise = anticlockwise;
     }
+
+    public Integer getTouchcolumn() {
+        return touchcolumn;
+    }
+
+    public void setTouchcolumn(Integer touchcolumn) {
+        this.touchcolumn = touchcolumn;
+    }
+
+    public Integer getTouchrow() {
+        return touchrow;
+    }
+
+    public void setTouchrow(Integer touchrow) {
+        this.touchrow = touchrow;
+    }
+
 
     public Integer getTurn() {
         return turn;
@@ -96,6 +114,8 @@ public class viewmodel extends ViewModel {
 
     void init() {
 
+        turn = 1;
+
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 10; j++)
                 grid[i][j] = 0;
@@ -109,7 +129,7 @@ public class viewmodel extends ViewModel {
         grid[0][6] = 9;
         grid[0][5] = 17;
         grid[0][7] = 4;
-        grid[3][4] = 12;
+        grid[3][4] = 14;
         grid[3][5] = 13;
         grid[3][7] = 4;
         grid[4][7] = 3;
@@ -127,7 +147,7 @@ public class viewmodel extends ViewModel {
         grid[2][3] = 26;
         grid[3][2] = 25;
         grid[4][2] = 26;
-        grid[4][4] = 32;
+        grid[4][4] = 34;
         grid[4][5] = 33;
 
 

@@ -29,6 +29,13 @@ public class canvas extends View {
     //static Integer touchx, touchy;
     //static boolean selected = false;
 
+    static Integer typeselected;
+    //1-pyramid
+    //2-pharaoh
+    //3-anubis
+    //4-scarab
+    //5-spinx
+
     static float thickness;
     static Paint line, red, silver;
     //static Integer turn = 1;
@@ -136,7 +143,6 @@ public class canvas extends View {
             bitmapresize();
             resize = true;
         }
-
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 10; j++) {
@@ -252,18 +258,127 @@ public class canvas extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getAction()) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-            case MotionEvent.ACTION_DOWN: {
-                if (!res.getSelected().getValue()) {
-                    res.setTouchx((int) event.getX() / distancewidth);
-                    res.setTouchy((int) event.getY() / distanceheight);
+            if (!res.getSelected().getValue()) {
+                res.setTouchcolumn((int) event.getX() / distancewidth);
+                res.setTouchrow((int) event.getY() / distanceheight);
+                if (((res.getTurn() == 1 && res.getGrid()[(int) event.getY() / distanceheight][(int) event.getX() / distancewidth] > 20) || (res.getTurn() == 2 && res.getGrid()[(int) event.getY() / distanceheight][(int) event.getX() / distancewidth] < 20)) && res.getGrid()[(int) event.getY() / distanceheight][(int) event.getX() / distancewidth] != 0) {
+                    res.setTouchcolumn((int) event.getX() / distancewidth);
+                    res.setTouchrow((int) event.getY() / distanceheight);
+
+                    switch (res.getGrid()[res.getTouchrow()][res.getTouchcolumn()]) {
+
+                        case 1:
+                        case 21:
+                            res.setClockwise(false);
+                            res.setAnticlockwise(true);
+                            break;
+                        case 2:
+                        case 22:
+                            res.setClockwise(true);
+                            res.setAnticlockwise(false);
+                            break;
+                        default:
+                            res.setClockwise(true);
+                            res.setAnticlockwise(true);
+
+                    }
+
+
                     res.getSelected().setValue(true);
                 }
+
+            } else {
+
+
+                switch (res.getGrid()[res.getTouchrow()][res.getTouchcolumn()]) {
+                    case 1:
+                    case 2:
+                    case 21:
+                    case 22:
+                        typeselected = 5;
+                        break;
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                        typeselected = 1;
+                        break;
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                        typeselected = 3;
+                        break;
+                    case 13:
+                    case 14:
+                    case 33:
+                    case 34:
+                        typeselected = 4;
+                        break;
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 35:
+                    case 36:
+                    case 37:
+                    case 38:
+                        typeselected = 2;
+                        break;
+                    default:
+                        typeselected = 0;
+                }
+
+                if (Math.abs(res.getTouchcolumn() - (int) (event.getX() / distancewidth)) <= 1 && Math.abs(res.getTouchrow() - (int) (event.getY() / distanceheight)) <= 1 && (((int) (event.getX() / distancewidth) != res.getTouchcolumn()) || ((int) (event.getY() / distanceheight) != res.getTouchrow()))) {
+
+                    if (typeselected == 4) {
+                        if (((event.getX() / distancewidth) == 0 && (event.getY() / distanceheight) != 0) || ((event.getX() / distancewidth) == 9 && (event.getY() / distanceheight) == 7)) {
+                            //toast
+                        } else {
+                            Integer[][] temp = res.getGrid().clone();
+                            Integer x = temp[res.getTouchrow()][res.getTouchcolumn()];
+                            temp[res.getTouchrow()][res.getTouchcolumn()] = temp[(int) (event.getY() / distanceheight)][(int) (event.getX() / distancewidth)];
+                            temp[(int) (event.getY() / distanceheight)][(int) (event.getX() / distancewidth)] = x;
+                            res.setGrid(temp);
+
+                            changeturn();
+                            res.getSelected().setValue(false);
+
+
+                        }
+                    } else if (typeselected == 5 || typeselected == 0) {
+                        //toast
+                    } else {
+                        Integer[][] temp = res.getGrid().clone();
+                        if (temp[(int) (event.getY() / distanceheight)][(int) (event.getX() / distancewidth)] == 0) {
+                            temp[(int) (event.getY() / distanceheight)][(int) (event.getX() / distancewidth)] = temp[res.getTouchrow()][res.getTouchcolumn()];
+                            temp[res.getTouchrow()][res.getTouchcolumn()] = 0;
+                            res.setGrid(temp);
+
+
+                            changeturn();
+                            res.getSelected().setValue(false);
+
+                        } else {
+                            //toast
+                        }
+                    }
+                }
+
             }
-
+            postInvalidate();
+            return true;
         }
-
         return super.onTouchEvent(event);
     }
 
@@ -294,7 +409,7 @@ public class canvas extends View {
     }
 
 
-    public static Bitmap RotateBitmap(Bitmap source, float angle) {
+    private Bitmap RotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         if (angle == 180)
@@ -303,6 +418,13 @@ public class canvas extends View {
             Bitmap temp = Bitmap.createScaledBitmap(source, (int) (distanceheight - thickness * 2), (int) (distancewidth - thickness * 2), false);
             return Bitmap.createBitmap(temp, 0, 0, source.getHeight(), source.getWidth(), matrix, true);
         }
+    }
+
+    private void changeturn() {
+        if (res.getTurn() == 1)
+            res.setTurn(2);
+        else
+            res.setTurn(1);
     }
 
 }
